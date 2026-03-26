@@ -1,105 +1,325 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Add Medicine - MedReturn Tracker</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body, html {margin:0;padding:0;height:100%;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-        body {background:url('../images/bg.jpg') no-repeat center center fixed;background-size:cover;}
-        .overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:0;}
-        .content{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 15px 50px;}
-        .card{border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.3);padding:30px;background:rgba(255,255,255,0.95);width:100%;max-width:600px;}
-        .card h3{text-align:center;color:#198754;margin-bottom:25px;font-weight:700;}
-        .form-control{border-radius:8px;}
-        .btn-primary{background:#198754;border:none;padding:10px 25px;font-size:1rem;}
-        .btn-primary:hover{background:#0f5132;}
-        nav.navbar{z-index:2;}
-    </style>
+<meta charset="UTF-8">
+<title>Add Medicine - MedReturn Tracker</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body, html{
+margin:0;
+padding:0;
+height:100%;
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+body{
+background:url('../images/bg.jpg') no-repeat center center fixed;
+background-size:cover;
+}
+
+.overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+z-index:0;
+}
+
+.content{
+position:relative;
+z-index:1;
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:80px 15px 50px;
+}
+
+.card{
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.3);
+padding:30px;
+background:rgba(255,255,255,0.95);
+width:100%;
+max-width:600px;
+}
+
+.card h3{
+text-align:center;
+color:#198754;
+margin-bottom:25px;
+font-weight:700;
+}
+
+.form-control{
+border-radius:8px;
+}
+
+.invalid-feedback{
+display:block;
+}
+
+.btn-primary{
+background:#198754;
+border:none;
+padding:10px 25px;
+font-size:1rem;
+}
+
+.btn-primary:hover{
+background:#0f5132;
+}
+
+nav.navbar{
+z-index:2;
+}
+
+</style>
 </head>
+
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand fw-semibold" href="../index.html">MedReturn Tracker</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="add_medicine.html">Add Medicine</a></li>
-                <li class="nav-item"><a class="nav-link" href="daily_sales.html">Daily Sales</a></li>
-                <li class="nav-item"><a class="nav-link" href="reminder.html">Reminder</a></li>
-                <li class="nav-item"><a class="nav-link" href="report.html">Report</a></li>
-            </ul>
-        </div>
-    </div>
+
+<div class="container">
+
+<a class="navbar-brand fw-semibold" href="../index.html">
+MedReturn Tracker
+</a>
+
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="navbarNav">
+
+<ul class="navbar-nav ms-auto">
+
+<li class="nav-item">
+<a class="nav-link" href="../index.html">Home</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link active" href="add_medicine.html">Add Medicine</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="daily_sales.html">Daily Sales</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="reminder.html">Reminder</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="report.html">Report</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="sales.html">sales chart</a>
+</li>
+
+</ul>
+
+</div>
+</div>
 </nav>
 
 <div class="overlay"></div>
 
 <div class="content">
-    <div class="card">
-        <h3>Add New Medicine</h3>
-        <form id="addMedicineForm">
-            <div class="mb-3">
-                <label class="form-label">Medicine Name</label>
-                <input type="text" class="form-control" id="medicineName" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Batch Number</label>
-                <input type="text" class="form-control" id="batchNumber" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Expiry Date</label>
-                <input type="date" class="form-control" id="expiryDate" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Return Date</label>
-                <input type="date" class="form-control" id="returnDate" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Quantity</label>
-                <input type="number" class="form-control" id="quantity" min="1" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Price (per unit)</label>
-                <input type="number" class="form-control" id="price" min="0" step="0.01" required>
-            </div>
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary">Add Medicine</button>
-            </div>
-        </form>
-    </div>
+
+<div class="card">
+
+<h3>Add New Medicine</h3>
+
+<form id="addMedicineForm">
+
+<div class="mb-3">
+<label class="form-label">Medicine Name</label>
+<input type="text" class="form-control" id="medicineName">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Batch Number</label>
+<input type="text" class="form-control" id="batchNumber">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Expiry Date</label>
+<input type="date" class="form-control" id="expiryDate">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Return Date</label>
+<input type="date" class="form-control" id="returnDate">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Quantity</label>
+<input type="number" class="form-control" id="quantity">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Price (per unit)</label>
+<input type="number" class="form-control" id="price">
+<div class="invalid-feedback"></div>
+</div>
+
+<div class="text-center mt-4">
+<button type="submit" class="btn btn-primary">
+Add Medicine
+</button>
+</div>
+
+</form>
+
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.getElementById('addMedicineForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const medicineName = document.getElementById('medicineName').value;
-    const batchNumber = document.getElementById('batchNumber').value;
-    const expiryDate = document.getElementById('expiryDate').value;
-    const returnDate = document.getElementById('returnDate').value;
-    const quantity = parseInt(document.getElementById('quantity').value);
-    const price = parseFloat(document.getElementById('price').value);
 
-    try{
-        const res = await fetch('http://localhost:3000/add-medicine',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({medicineName,batchNumber,expiryDate,returnDate,quantity,price})
-        });
-        const data = await res.json();
-        alert(data.message);
-        e.target.reset();
-    }catch(err){
-        console.error(err);
-        alert('Error adding medicine!');
-    }
-});
+<script>
+
+function showError(input,message){
+input.classList.add("is-invalid")
+input.nextElementSibling.innerText=message
+}
+
+function clearError(input){
+input.classList.remove("is-invalid")
+input.nextElementSibling.innerText=""
+}
+
+document.getElementById("addMedicineForm").addEventListener("submit",async function(e){
+
+e.preventDefault()
+
+let valid=true
+
+const medicineName=document.getElementById("medicineName")
+const batchNumber=document.getElementById("batchNumber")
+const expiryDate=document.getElementById("expiryDate")
+const returnDate=document.getElementById("returnDate")
+const quantity=document.getElementById("quantity")
+const price=document.getElementById("price")
+
+clearError(medicineName)
+clearError(batchNumber)
+clearError(expiryDate)
+clearError(returnDate)
+clearError(quantity)
+clearError(price)
+
+const batchRegex=/^[A-Za-z0-9]+$/
+
+// Medicine Name validation (only empty check)
+
+if(medicineName.value.trim()===""){
+showError(medicineName,"Medicine name is required")
+valid=false
+}
+
+// Batch Number validation
+
+if(batchNumber.value.trim()===""){
+showError(batchNumber,"Batch number required")
+valid=false
+}
+else if(!batchRegex.test(batchNumber.value)){
+showError(batchNumber,"Only letters and numbers allowed")
+valid=false
+}
+
+// Date validations
+
+const today=new Date().toISOString().split("T")[0]
+
+if(!expiryDate.value){
+showError(expiryDate,"Expiry date required")
+valid=false
+}
+else if(expiryDate.value<=today){
+showError(expiryDate,"Expiry must be future date")
+valid=false
+}
+
+if(!returnDate.value){
+showError(returnDate,"Return date required")
+valid=false
+}
+else if(returnDate.value>expiryDate.value){
+showError(returnDate,"Return date must be before expiry")
+valid=false
+}
+
+// Quantity validation
+
+if(!quantity.value || quantity.value<=0){
+showError(quantity,"Quantity must be greater than 0")
+valid=false
+}
+
+// Price validation
+
+if(price.value==="" || price.value<0){
+showError(price,"Price must be 0 or greater")
+valid=false
+}
+
+if(!valid) return
+
+try{
+
+const res=await fetch("http://localhost:3000/add-medicine",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+medicineName:medicineName.value,
+batchNumber:batchNumber.value,
+expiryDate:expiryDate.value,
+returnDate:returnDate.value,
+quantity:parseInt(quantity.value),
+price:parseFloat(price.value)
+
+})
+
+})
+
+const data=await res.json()
+
+alert(data.message)
+
+this.reset()
+
+}catch(err){
+
+alert("Error adding medicine!")
+
+}
+
+})
+
 </script>
 
 </body>
 </html>
+```

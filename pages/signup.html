@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signup - MedReturn Tracker</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body,html{
+    margin:0;
+    padding:0;
+    height:100%;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+body{
+    background:url('../images/bg.jpg') no-repeat center center fixed;
+    background-size:cover;
+}
+.overlay{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+.signup-box{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.card{
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);
+    padding:30px;
+    background:rgba(255,255,255,0.95);
+    width:100%;
+    max-width:400px;
+}
+.card h3{
+    text-align:center;
+    color:#198754;
+    margin-bottom:25px;
+    font-weight:700;
+}
+.btn-signup{
+    background:#198754;
+    color:#fff;
+    width:100%;
+}
+.btn-signup:hover{
+    background:#0f5132;
+}
+</style>
+</head>
+
+<body>
+
+<div class="overlay"></div>
+
+<div class="signup-box">
+<div class="card">
+
+<h3>Create Account</h3>
+
+<input type="text" id="name" class="form-control mb-3" placeholder="Enter Name">
+<input type="email" id="email" class="form-control mb-3" placeholder="Enter Email">
+<input type="password" id="password" class="form-control mb-3" placeholder="Enter Password">
+
+<button class="btn btn-signup" onclick="signup()">Signup</button>
+
+<p class="text-center mt-3">
+Already have account? <a href="login.html">Login</a>
+</p>
+
+</div>
+</div>
+
+<script>
+
+async function signup(){
+
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    if(!name || !email || !password){
+        alert("Please fill all fields");
+        return;
+    }
+
+    const res = await fetch("http://localhost:3000/signup",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+
+    alert(data.message);
+
+    if(data.message === "Signup successful"){
+        window.location.href = "login.html";
+    }
+}
+
+</script>
+
+</body>
+</html>
