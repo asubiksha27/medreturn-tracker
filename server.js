@@ -4,19 +4,28 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const PORT = 3000;
+
+// IMPORTANT → Railway uses dynamic port
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// -------------------- Home Route (VERY IMPORTANT) --------------------
+
+app.get("/", (req, res) => {
+  res.send("MedReturn Tracker Backend is Running Successfully");
+});
+
 // -------------------- MySQL Connection --------------------
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'medtracker'
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || '',
+  database: process.env.MYSQLDATABASE || 'medtracker',
+  port: process.env.MYSQLPORT || 3306
 });
 
 db.connect(err => {
@@ -26,7 +35,6 @@ db.connect(err => {
   }
   console.log('MySQL Connected Successfully');
 });
-
 
 // ==========================================================
 //                      AUTHENTICATION
@@ -63,7 +71,6 @@ app.post('/signup', async (req, res) => {
   }
 
 });
-
 
 // -------------------- Login --------------------
 
@@ -106,7 +113,6 @@ app.post('/login', (req, res) => {
 
 });
 
-
 // ==========================================================
 //                      MEDICINE MODULE
 // ==========================================================
@@ -143,8 +149,7 @@ app.post('/add-medicine', (req, res) => {
 
 });
 
-
-// -------------------- Get Medicines for Daily Sales --------------------
+// -------------------- Get Medicines --------------------
 
 app.get('/medicines', (req, res) => {
 
@@ -164,195 +169,8 @@ app.get('/medicines', (req, res) => {
 
 });
 
-
-// -------------------- Record Daily Sales --------------------
-
-app.post('/sell-medicine', (req, res) => {
-
-  const { medicineId, soldQty } = req.body;
-
-  if (!medicineId || !soldQty) {
-    return res.status(400).json({ error: 'Medicine ID and quantity required' });
-  }
-
-  const sql = `
-    UPDATE medicines
-    SET sold_qty = sold_qty + ?
-    WHERE id = ? AND (quantity - sold_qty) >= ?
-  `;
-
-  db.query(sql, [soldQty, medicineId, soldQty], (err, result) => {
-
-    if (err) return res.status(500).json(err);
-
-    if (result.affectedRows === 0) {
-      return res.status(400).json({
-        error: 'Not enough stock or invalid medicine'
-      });
-    }
-
-    res.json({ message: 'Sales updated successfully' });
-
-  });
-
-});
-
-
-// -------------------- Mark Returned / Missed --------------------
-
-app.post('/mark-status', (req, res) => {
-
-  const { id, status } = req.body;
-
-  if (!id || !status) {
-    return res.status(400).json({ error: 'ID and status required' });
-  }
-
-  const returnedVal = status === 'Returned' ? 1 : 0;
-
-  const sql = `
-  UPDATE medicines
-  SET status = ?,
-      returned = ?,
-      returned_qty = CASE WHEN ?='Returned' THEN sold_qty ELSE returned_qty END,
-      missed_qty   = CASE WHEN ?='Missed' THEN quantity - sold_qty ELSE missed_qty END
-  WHERE id = ?
-  `;
-
-  db.query(sql, [status, returnedVal, status, status, id], (err) => {
-
-    if (err) return res.status(500).json(err);
-
-    res.json({ message: `Medicine marked as ${status}` });
-
-  });
-
-});
-
-
-// -------------------- Reminder --------------------
-
-app.get('/reminder', (req, res) => {
-
-  const sql = `
-    SELECT id, name, batch_number, return_date, expiry_date,
-           quantity, sold_qty, price,
-           (quantity - sold_qty) AS remainingQty,
-           DATEDIFF(expiry_date, CURDATE()) AS daysLeft,
-           status
-    FROM medicines
-    WHERE status='Pending'
-  `;
-
-  db.query(sql, (err, results) => {
-
-    if (err) return res.status(500).json(err);
-
-    const data = results.map(m => {
-
-      let alert = 'low';
-
-      if (m.daysLeft <= 10) alert = 'high';
-      else if (m.daysLeft <= 30) alert = 'medium';
-
-      return {
-        id: m.id,
-        name: m.name,
-        batchNumber: m.batch_number,
-        remainingQty: m.remainingQty,
-        returnDate: m.return_date,
-        expiryDate: m.expiry_date,
-        daysLeft: m.daysLeft,
-        alert,
-        status: m.status,
-        price: m.price
-      };
-
-    });
-
-    res.json(data);
-
-  });
-
-});
-
-
-// -------------------- Report Page --------------------
-
-app.get('/report', (req, res) => {
-
-  db.query('SELECT * FROM medicines', (err, results) => {
-
-    if (err) return res.status(500).json(err);
-
-    const totalMedicines = results.length;
-
-    const totalSold = results.reduce((sum, m) => sum + m.sold_qty, 0);
-
-    const expired = results.filter(
-      m => new Date(m.expiry_date) < new Date()
-    ).length;
-
-    let totalGain = 0;
-    let totalLoss = 0;
-
-    results.forEach(m => {
-
-      totalGain += m.returned_qty * m.price;
-      totalLoss += m.missed_qty * m.price;
-
-    });
-
-    const salesReport = results.map(m => ({
-      name: m.name,
-      batchNumber: m.batch_number,
-      status: m.status,
-      soldQty: m.sold_qty,
-      returnedQty: m.returned_qty,
-      missedQty: m.missed_qty,
-      price: m.price,
-      quantity: m.quantity,
-      salesAmount: m.sold_qty * m.price
-    }));
-
-    res.json({
-      totalMedicines,
-      totalSold,
-      expired,
-      totalGain: totalGain.toFixed(2),
-      totalLoss: totalLoss.toFixed(2),
-      salesReport
-    });
-
-  });
-
-});
-
-
-// -------------------- Sales Pie Chart API --------------------
-
-app.get('/sales-data', (req, res) => {
-
-  const sql = `
-    SELECT name,
-           SUM(sold_qty * price) AS total_sales
-    FROM medicines
-    GROUP BY name
-  `;
-
-  db.query(sql, (err, results) => {
-
-    if (err) return res.status(500).json(err);
-
-    res.json(results);
-
-  });
-
-});
-
-
 // -------------------- Start Server --------------------
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
