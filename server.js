@@ -5,43 +5,41 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
-// IMPORTANT → Railway uses dynamic port
+// Render dynamic port
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// -------------------- Home Route (VERY IMPORTANT) --------------------
-
+// Home Route
 app.get("/", (req, res) => {
   res.send("MedReturn Tracker Backend is Running Successfully");
 });
 
-// -------------------- MySQL Connection --------------------
+// ================= DATABASE CONNECTION =================
 
 const db = mysql.createConnection({
-  host: process.env.MYSQLHOST || 'localhost',
-  user: process.env.MYSQLUSER || 'root',
-  password: process.env.MYSQLPASSWORD || '',
-  database: process.env.MYSQLDATABASE || 'medtracker',
-  port: process.env.MYSQLPORT || 3306
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT
 });
 
 db.connect(err => {
   if (err) {
-    console.error('DB Connection Error:', err);
-    return;
+    console.error("DB Connection Error:", err);
+  } else {
+    console.log("MySQL Connected Successfully");
   }
-  console.log('MySQL Connected Successfully');
 });
 
-// ==========================================================
-//                      AUTHENTICATION
-// ==========================================================
+// ======================================================
+// AUTHENTICATION
+// ======================================================
 
-// -------------------- Signup --------------------
-
+// Signup
 app.post('/signup', async (req, res) => {
 
   const { name, email, password } = req.body;
@@ -59,7 +57,8 @@ app.post('/signup', async (req, res) => {
     db.query(sql, [name, email, hashedPassword], (err, result) => {
 
       if (err) {
-        return res.status(500).json({ error: 'User already exists' });
+        console.log(err);
+        return res.status(500).json({ error: 'User already exists or DB error' });
       }
 
       res.json({ message: 'Signup successful' });
@@ -72,8 +71,7 @@ app.post('/signup', async (req, res) => {
 
 });
 
-// -------------------- Login --------------------
-
+// Login
 app.post('/login', (req, res) => {
 
   const { email, password } = req.body;
@@ -113,12 +111,11 @@ app.post('/login', (req, res) => {
 
 });
 
-// ==========================================================
-//                      MEDICINE MODULE
-// ==========================================================
+// ======================================================
+// MEDICINE MODULE
+// ======================================================
 
-// -------------------- Add Medicine --------------------
-
+// Add Medicine
 app.post('/add-medicine', (req, res) => {
 
   const { medicineName, batchNumber, expiryDate, returnDate, quantity, price } = req.body;
@@ -149,8 +146,7 @@ app.post('/add-medicine', (req, res) => {
 
 });
 
-// -------------------- Get Medicines --------------------
-
+// Get Medicines
 app.get('/medicines', (req, res) => {
 
   const sql = `
@@ -169,8 +165,7 @@ app.get('/medicines', (req, res) => {
 
 });
 
-// -------------------- Start Server --------------------
-
+// Start Server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
